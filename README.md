@@ -120,10 +120,30 @@ This project is under active development. So things that are currently working m
 Please consider citing this project in your publications if it helps your research. The following is a BibTeX reference. The BibTeX entry requires the url LaTeX package.
 ```
 @misc{torchseg2019,
-  author =       {Changqian Yu},
+  author =       {Yu, Changqian},
   title =        {TorchSeg},
   howpublished = {\url{https://github.com/ycszen/TorchSeg}},
   year =         {2019}
+}
+```
+
+```
+@article{yu2018dfn,
+  title={Learning a Discriminative Feature Network for Semantic Segmentation},
+  author={Yu, Changqian and Wang, Jingbo and Peng, Chao and Gao, Changxin and Yu, Gang and Sang, Nong},
+  journal={arXiv preprint arXiv:1804.09337},
+  year={2018}
+}
+```
+
+```
+@inproceedings{yu2018bisenet,
+  title={Bisenet: Bilateral segmentation network for real-time semantic segmentation},
+  author={Yu, Changqian and Wang, Jingbo and Peng, Chao and Gao, Changxin and Yu, Gang and Sang, Nong},
+  booktitle={European Conference on Computer Vision},
+  pages={334--349},
+  year={2018},
+  organization={Springer}
 }
 ```
 
