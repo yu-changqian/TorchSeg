@@ -57,18 +57,22 @@ with Engine(custom_parser=parser) as engine:
                 mode='fan_out', nonlinearity='relu')
 
     # group weight and config optimizer
+    base_lr = config.lr
+    if engine.distributed:
+        base_lr = config.lr * engine.world_size
+
     params_list = []
     params_list = group_weight(params_list, model,
-                               BatchNorm2d, config.lr)
+                               BatchNorm2d, base_lr)
 
     optimizer = torch.optim.SGD(params_list,
-                                lr=config.lr,
+                                lr=base_lr,
                                 momentum=config.momentum,
                                 weight_decay=config.weight_decay)
 
     # config lr policy
     total_iteration = config.nepochs * config.niters_per_epoch
-    lr_policy = PolyLR(config.lr, config.lr_power, total_iteration)
+    lr_policy = PolyLR(base_lr, config.lr_power, total_iteration)
 
     if engine.distributed:
         if torch.cuda.is_available():
