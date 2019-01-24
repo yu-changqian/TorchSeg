@@ -20,8 +20,14 @@ This project aims at providing a fast, modular reference implementation for sema
 - tqdm
   - `pip3 install tqdm`
 
-## Benchmark and Model Zoo
+## Model Zoo
+### Supported Model
+- FCN
+- [DFN](https://arxiv.org/abs/1804.09337) 
+- [BiSeNet](https://arxiv.org/abs/1808.00897)
+- PSPNet
 
+### Performance and Benchmarks
 SS:Single Scale MSF:Multi-scale + Flip
 
 ### PASCAL VOC 2012
@@ -117,7 +123,9 @@ In the evaluator, we have implemented the multi-gpu inference base on the multi-
 This project is under active development. So things that are currently working might break in a future release. However, feel free to open issue if you get stuck anywhere.
 
 ## Citation
-Please consider citing this project in your publications if it helps your research. The following is a BibTeX reference. The BibTeX entry requires the url LaTeX package.
+The following are BibTeX references. The BibTeX entry requires the url LaTeX package.
+
+Please consider citing this project in your publications if it helps your research. 
 ```
 @misc{torchseg2019,
   author =       {Yu, Changqian},
@@ -127,6 +135,8 @@ Please consider citing this project in your publications if it helps your resear
 }
 ```
 
+Please consider citing the DFN in your publications if it helps your research. 
+
 ```
 @article{yu2018dfn,
   title={Learning a Discriminative Feature Network for Semantic Segmentation},
@@ -135,6 +145,8 @@ Please consider citing this project in your publications if it helps your resear
   year={2018}
 }
 ```
+
+Please consider citing the BiSeNet in your publications if it helps your research. 
 
 ```
 @inproceedings{yu2018bisenet,
