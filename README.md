@@ -135,7 +135,7 @@ Please consider citing this project in your publications if it helps your resear
 }
 ```
 
-Please consider citing the DFN in your publications if it helps your research. 
+Please consider citing the [DFN](https://arxiv.org/abs/1804.09337) in your publications if it helps your research. 
 
 ```
 @article{yu2018dfn,
@@ -146,7 +146,7 @@ Please consider citing the DFN in your publications if it helps your research.
 }
 ```
 
-Please consider citing the BiSeNet in your publications if it helps your research. 
+Please consider citing the [BiSeNet](https://arxiv.org/abs/1808.00897) in your publications if it helps your research. 
 
 ```
 @inproceedings{yu2018bisenet,
