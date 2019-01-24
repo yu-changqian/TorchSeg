@@ -36,6 +36,27 @@ class ConvBnRelu(nn.Module):
         return x
 
 
+class SeparableConvBnRelu(nn.Module):
+    def __init__(self, in_channels, out_channels,
+                 kernel_size=1, stride=1, padding=0, dilation=1,
+                 has_relu=True, norm_layer=nn.BatchNorm2d):
+        super(SeparableConvBnRelu, self).__init__()
+
+        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size, stride,
+                               padding, dilation, groups=in_channels,
+                               bias=False)
+        self.bn = norm_layer(in_channels)
+        self.point_wise_cbr = ConvBnRelu(in_channels, out_channels, 1, 1, 0,
+                                         has_bn=True, norm_layer=norm_layer,
+                                         has_relu=has_relu, has_bias=False)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn(x)
+        x = self.point_wise_cbr(x)
+        return x
+
+
 class GlobalAvgPool2d(nn.Module):
     def __init__(self):
         """Global average pooling over the input's spatial dimensions"""
