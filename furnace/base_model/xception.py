@@ -4,7 +4,6 @@ import torch.nn as nn
 from seg_opr.seg_oprs import ConvBnRelu
 from utils.pyt_utils import load_model
 
-
 __all__ = ['Xception', 'xception39']
 
 
@@ -41,51 +40,6 @@ class Block(nn.Module):
                                             3, stride, 1,
                                             has_relu=False,
                                             norm_layer=norm_layer)
-
-        self.residual_branch = nn.Sequential(
-            SeparableConvBnRelu(in_channels, mid_out_channels,
-                                3, stride, dilation, dilation,
-                                has_relu=True, norm_layer=norm_layer),
-            SeparableConvBnRelu(mid_out_channels, mid_out_channels, 3, 1, 1,
-                                has_relu=True, norm_layer=norm_layer),
-            SeparableConvBnRelu(mid_out_channels,
-                                mid_out_channels * self.expansion, 3, 1, 1,
-                                has_relu=False, norm_layer=norm_layer))
-        self.relu = nn.ReLU(inplace=True)
-
-    def forward(self, x):
-        shortcut = x
-        if self.has_proj:
-            shortcut = self.proj(x)
-
-        residual = self.residual_branch(x)
-        output = self.relu(shortcut + residual)
-
-        return output
-
-
-class Blockv2(nn.Module):
-    expansion = 4
-
-    def __init__(self, in_channels, mid_out_channels, has_proj, stride,
-                 dilation=1, norm_layer=nn.BatchNorm2d):
-        super(Blockv2, self).__init__()
-        self.has_proj = has_proj
-
-        if has_proj:
-            self.proj = nn.Sequential(
-                nn.AvgPool2d(2, 2, 0, ceil_mode=True),
-                SeparableConvBnRelu(in_channels,
-                                    mid_out_channels * self.expansion,
-                                    3, 1, 1,
-                                    has_relu=False,
-                                    norm_layer=norm_layer),
-            )
-            # self.proj = SeparableConvBnRelu(in_channels,
-            #                                 mid_out_channels * self.expansion,
-            #                                 3, stride, 1,
-            #                                 has_relu=False,
-            #                                 norm_layer=norm_layer)
 
         self.residual_branch = nn.Sequential(
             SeparableConvBnRelu(in_channels, mid_out_channels,
@@ -161,4 +115,3 @@ def xception39(pretrained_model=None, **kwargs):
     if pretrained_model is not None:
         model = load_model(model, pretrained_model)
     return model
-
