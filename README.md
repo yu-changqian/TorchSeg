@@ -90,9 +90,9 @@ SS:Single Scale MSF:Multi-scale + Flip
 3. train a network:
 
 ### Distributed Training
-We use the offical `torch.distributed.launch` in order to launch multi-gpu training. This utility function from PyTorch spawns as many Python processes as the number of GPUs we want to use, and each Python process will only use a single GPU.
+We use the official `torch.distributed.launch` in order to launch multi-gpu training. This utility function from PyTorch spawns as many Python processes as the number of GPUs we want to use, and each Python process will only use a single GPU.
 
-For each experiment, you can just run this scirpt:
+For each experiment, you can just run this script:
 ```bash
 export NGPUS=8
 python -m torch.distributed.launch --nproc_per_node=$NGPUS train.py
