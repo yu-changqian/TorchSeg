@@ -76,7 +76,7 @@ C.pretrained_model = "/unsullied/sharefs/yuchangqian/Storage/model_zoo/pytorch_m
 C.aux_loss_alpha = 0.1
 
 """Train Config"""
-C.lr = 8e-3
+C.lr = 1e-3
 C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 1e-5
