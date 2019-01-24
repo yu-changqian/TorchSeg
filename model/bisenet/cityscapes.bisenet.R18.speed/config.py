@@ -81,8 +81,8 @@ C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 5e-4
 C.batch_size = 16 #4 * C.num_gpu
-C.epoches = 80
-C.epoch_num = 1000
+C.nepochs = 80
+C.niters_per_epoch = 1000
 C.num_workers = 24
 C.train_scale_array = [0.75, 1, 1.25, 1.5, 1.75, 2.0]
 
