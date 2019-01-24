@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-import argparse
 import time
-import numpy as np
-import six
 
 import torch
 
-from utils.logger import get_logger
+from engine.logger import get_logger
 
 logger = get_logger()
 
