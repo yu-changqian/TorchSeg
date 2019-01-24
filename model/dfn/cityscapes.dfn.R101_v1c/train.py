@@ -44,10 +44,10 @@ with Engine(custom_parser=parser) as engine:
     train_loader, train_sampler = get_train_loader(engine, Cityscapes)
 
     # config network and criterion
-    criterion = nn.CrossEntropyLoss(reduction='mean',
-                                    ignore_index=255)
-    # criterion = ProbOhemCrossEntropy2d(ignore_label=255, thresh=0.7,
-    #                                    min_kept=100000, use_weight=True)
+    # criterion = nn.CrossEntropyLoss(reduction='mean',
+    #                                 ignore_index=255)
+    criterion = ProbOhemCrossEntropy2d(ignore_label=255, thresh=0.7,
+                                       min_kept=100000, use_weight=False)
     aux_criterion = SigmoidFocalLoss(ignore_label=255, gamma=2.0, alpha=0.25)
 
     if engine.distributed:
@@ -62,21 +62,25 @@ with Engine(custom_parser=parser) as engine:
                 mode='fan_in', nonlinearity='relu')
 
     # group weight and config optimizer
+    base_lr = config.lr
+    if engine.distributed:
+        base_lr = config.lr * engine.world_size
+
     params_list = []
     params_list = group_weight(params_list, model.backbone,
-                               BatchNorm2d, config.lr)
+                               BatchNorm2d, base_lr)
     for module in model.business_layer:
         params_list = group_weight(params_list, module, BatchNorm2d,
-                                   config.lr * 10)
+                                   base_lr * 10)
 
     optimizer = torch.optim.SGD(params_list,
-                                lr=config.lr,
+                                lr=base_lr,
                                 momentum=config.momentum,
                                 weight_decay=config.weight_decay)
 
     # config lr policy
     total_iteration = config.nepochs * config.niters_per_epoch
-    lr_policy = PolyLR(config.lr, config.lr_power, total_iteration)
+    lr_policy = PolyLR(base_lr, config.lr_power, total_iteration)
 
     if engine.distributed:
         if torch.cuda.is_available():
