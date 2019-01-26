@@ -37,7 +37,7 @@ class SegEvaluator(Evaluator):
         pred = self.whole_eval(img,
                                (config.image_height // config.gt_down_sampling,
                                 config.image_width // config.gt_down_sampling),
-                               config.eval_stride_rate, device)
+                               device)
         hist_tmp, labeled_tmp, correct_tmp = hist_info(config.num_classes,
                                                        pred,
                                                        label)
