@@ -66,15 +66,24 @@ with Engine(custom_parser=parser) as engine:
 
     # group weight and config optimizer
     base_lr = config.lr
-    if engine.distributed:
-        base_lr = config.lr * engine.world_size
+    # if engine.distributed:
+    #     base_lr = config.lr * engine.world_size
 
     params_list = []
     params_list = group_weight(params_list, model.context_path,
                                BatchNorm2d, base_lr)
-    for module in model.business_layer:
-        params_list = group_weight(params_list, module, BatchNorm2d,
-                                   base_lr * 10)
+    params_list = group_weight(params_list, model.spatial_path,
+                               BatchNorm2d, base_lr)
+    params_list = group_weight(params_list, model.global_context,
+                               BatchNorm2d, base_lr)
+    params_list = group_weight(params_list, model.arms,
+                               BatchNorm2d, base_lr)
+    params_list = group_weight(params_list, model.refines,
+                               BatchNorm2d, base_lr)
+    params_list = group_weight(params_list, model.heads,
+                               BatchNorm2d, base_lr * 10)
+    params_list = group_weight(params_list, model.ffm,
+                               BatchNorm2d, base_lr * 10)
 
     optimizer = torch.optim.SGD(params_list,
                                 lr=base_lr,
@@ -131,9 +140,9 @@ with Engine(custom_parser=parser) as engine:
             current_idx = epoch * config.niters_per_epoch + idx
             lr = lr_policy.get_lr(current_idx)
 
-            optimizer.param_groups[0]['lr'] = lr
-            optimizer.param_groups[1]['lr'] = lr
-            for i in range(2, len(optimizer.param_groups)):
+            for i in range(10):
+                optimizer.param_groups[0]['lr'] = lr
+            for i in range(10, len(optimizer.param_groups)):
                 optimizer.param_groups[i]['lr'] = lr * 10
 
             loss.backward()

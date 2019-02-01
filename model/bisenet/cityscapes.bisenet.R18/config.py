@@ -87,7 +87,7 @@ C.train_scale_array = [0.75, 1, 1.25, 1.5, 1.75, 2.0]
 
 """Eval Config"""
 C.eval_iter = 30
-C.eval_stride_rate = 2 / 3
+C.eval_stride_rate = 5 / 6
 C.eval_scale_array = [1, ]  # 0.5, 0.75, 1, 1.25, 1.5, 1.75
 C.eval_flip = False
 C.eval_base_size = 1024
