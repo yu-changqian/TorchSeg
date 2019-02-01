@@ -35,7 +35,7 @@ C.val_log_file = C.log_dir + '/val_' + exp_time + '.log'
 C.link_val_log_file = C.log_dir + '/val_last.log'
 
 """Data Dir and Weight Dir"""
-C.dataset_path = "/root/Source/Datasets/Segmentation/ADE20K/ADE2017"
+C.dataset_path = "/unsullied/sharefs/yuchangqian/Storage/Datasets/ADE20K/ADE2017"
 C.img_root_folder = osp.join(C.dataset_path, "images/")
 C.gt_root_folder = osp.join(C.dataset_path, "annotations_sceneparsing/")
 C.train_source = osp.join(C.dataset_path, "images/training.txt")
@@ -71,7 +71,7 @@ C.fix_bn = False
 C.sync_bn = True
 C.bn_eps = 1e-5
 C.bn_momentum = 0.1
-C.pretrained_model = "/root/Source/model_zoo/pytorch_model/resnet50_v1c.pth"
+C.pretrained_model = "/unsullied/sharefs/yuchangqian/Storage/model_zoo/pytorch_model/resnet50_v1c.pth"
 
 """Train Config"""
 C.lr = 2e-2
