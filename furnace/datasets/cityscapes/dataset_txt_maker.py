@@ -17,22 +17,32 @@ def make_txt(type="label"):
         else:
             path = img_path
 
-        img_list_all = []
         path = os.path.join(path, mode)
         classes_list = os.listdir(path)
         classes_list.sort()
 
-        # print(classes_list)
         for classes in classes_list:
             classes_img_path = os.path.join(path, classes)
             img_list = os.listdir(classes_img_path)
             img_list.sort()
-            img_list_all.append(img_list)
-            # print(img_list)
 
+            txt_path = "txts/" + mode + ".txt"
+            with open(txt_path, 'a') as f:
+                for imgs in img_list:
+                    # print(imgs)
+                    name = imgs.split("_")
+                    # print(name)
+                    if name[4] == "color.png":
+                        label_name = imgs
+                        img_name = imgs[0:28] + "leftImg8bit.png"
+                        path_to_label = classes_img_path + "/" + label_name
+                        path_to_img = img_path + mode + "/" + classes + "/" + img_name
 
-
-# with open("txts/train.txt", 'w') as f:
+                        # print(path_to_img)
+                        # print(path_to_label)
+                        # exit()
+                        line = path_to_img + "   " + path_to_label
+                        f.writelines(line+"\n")
 
 
 if __name__ == '__main__':
