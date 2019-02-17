@@ -8,7 +8,7 @@ from collections import OrderedDict, defaultdict
 import torch
 import torch.utils.model_zoo as model_zoo
 
-from engine.logger import get_logger
+from furnace.engine.logger import get_logger
 
 logger = get_logger()
 

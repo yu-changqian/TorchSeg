@@ -24,6 +24,7 @@ C.repo_name = 'TorchSeg'
 C.abs_dir = osp.realpath(".")
 C.this_dir = C.abs_dir.split(osp.sep)[-1]
 C.root_dir = C.abs_dir[:C.abs_dir.index(C.repo_name) + len(C.repo_name)]
+print(C.root_dir)
 C.log_dir = osp.abspath(osp.join(C.root_dir, 'log', C.this_dir))
 C.log_dir_link = osp.join(C.abs_dir, 'log')
 C.snapshot_dir = osp.abspath(osp.join(C.log_dir, "snapshot"))
@@ -35,12 +36,12 @@ C.val_log_file = C.log_dir + '/val_' + exp_time + '.log'
 C.link_val_log_file = C.log_dir + '/val_last.log'
 
 """Data Dir and Weight Dir"""
-C.dataset_path = "/root/Source/Datasets/Segmentation/Cityscapes/"
+C.dataset_path = "/datasets-ssd/cityscapes/"
 C.img_root_folder = C.dataset_path
 C.gt_root_folder = C.dataset_path
-C.train_source = osp.join(C.dataset_path, "config_new/train.txt")
-C.eval_source = osp.join(C.dataset_path, "config_new/val.txt")
-C.test_source = osp.join(C.dataset_path, "config_new/test.txt")
+C.train_source = osp.join(C.root_dir, "furnace/datasets/cityscapes/txts/train.txt")
+C.eval_source = osp.join(C.root_dir, "furnace/datasets/cityscapes/txts/val.txt")
+C.test_source = osp.join(C.root_dir, "furnace/datasets/cityscapes/txts/test.txt")
 C.is_test = False
 
 """Path Config"""
@@ -104,7 +105,7 @@ def open_tensorboard():
 
 
 if __name__ == '__main__':
-    print(config.epoch_num)
+    print(config.nepochs)
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-tb', '--tensorboard', default=False, action='store_true')

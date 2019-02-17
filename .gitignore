@@ -1,1 +1,5 @@
 .idea/*
+*.pyc
+*.o
+*.so
+*.ninja*

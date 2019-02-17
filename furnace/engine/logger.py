@@ -8,7 +8,7 @@ import os
 import sys
 import logging
 
-from utils import pyt_utils
+from furnace.utils import pyt_utils
 # from utils.pyt_utils import ensure_dir
 
 _default_level_name = os.getenv('ENGINE_LOGGING_LEVEL', 'INFO')
