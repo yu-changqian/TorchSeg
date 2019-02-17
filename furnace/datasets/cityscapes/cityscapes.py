@@ -6,7 +6,7 @@
 # @File    : cityscapes.py
 import numpy as np
 
-from datasets.BaseDataset import BaseDataset
+from furnace.datasets.BaseDataset import BaseDataset
 
 
 class Cityscapes(BaseDataset):
