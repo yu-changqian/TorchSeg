@@ -51,14 +51,14 @@ with Engine(custom_parser=parser) as engine:
                                                 config.batch_size // len(
                                                     engine.devices) * config.image_height * config.image_width // 16),
                                             use_weight=False)
-
+    engine.distributed = False
     if engine.distributed:
         BatchNorm2d = SyncBatchNorm
 
     model = BiSeNet(config.num_classes, is_training=True,
                     criterion=criterion,
                     ohem_criterion=ohem_criterion,
-                    pretrained_model=config.pretrained_model,
+                    # pretrained_model=config.pretrained_model,
                     norm_layer=BatchNorm2d)
     init_weight(model.business_layer, nn.init.kaiming_normal_,
                 BatchNorm2d, config.bn_eps, config.bn_momentum,

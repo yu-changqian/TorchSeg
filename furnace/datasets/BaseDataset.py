@@ -101,7 +101,9 @@ class BaseDataset(data.Dataset):
     @staticmethod
     def _process_item_names(item):
         item = item.strip()
-        item = item.split('\t')
+        # item = item.split('\t')
+        item = item.split('   ')
+        # print(item)
         img_name = item[0]
         gt_name = item[1]
 

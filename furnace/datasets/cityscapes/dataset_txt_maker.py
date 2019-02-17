@@ -34,7 +34,9 @@ def make_txt(type="label"):
                     # print(name)
                     if name[4] == "color.png":
                         label_name = imgs
-                        img_name = imgs[0:28] + "leftImg8bit.png"
+                        # print(imgs)
+                        img_name = name[0] + "_" + name[1] + "_" + name[2] + "_leftImg8bit.png"
+                        # print(img_name)
                         path_to_label = classes_img_path + "/" + label_name
                         path_to_img = img_path + mode + "/" + classes + "/" + img_name
 

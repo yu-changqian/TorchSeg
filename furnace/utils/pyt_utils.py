@@ -78,9 +78,15 @@ def parse_devices(input_devices):
             for sd in range(start_device, end_device + 1):
                 devices.append(sd)
         else:
-            device = int(d)
-            assert device < torch.cuda.device_count()
-            devices.append(device)
+            if d != "":
+                print(d)
+                device = int(d)
+                assert device < torch.cuda.device_count()
+                devices.append(device)
+            else:
+                device = 0
+                assert device < torch.cuda.device_count()
+                devices.append(device)
 
     logger.info('using devices {}'.format(
         ', '.join([str(d) for d in devices])))

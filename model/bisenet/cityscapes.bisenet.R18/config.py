@@ -24,7 +24,6 @@ C.repo_name = 'TorchSeg'
 C.abs_dir = osp.realpath(".")
 C.this_dir = C.abs_dir.split(osp.sep)[-1]
 C.root_dir = C.abs_dir[:C.abs_dir.index(C.repo_name) + len(C.repo_name)]
-print(C.root_dir)
 C.log_dir = osp.abspath(osp.join(C.root_dir, 'log', C.this_dir))
 C.log_dir_link = osp.join(C.abs_dir, 'log')
 C.snapshot_dir = osp.abspath(osp.join(C.log_dir, "snapshot"))
@@ -73,17 +72,17 @@ C.fix_bn = False
 C.sync_bn = True
 C.bn_eps = 1e-5
 C.bn_momentum = 0.1
-C.pretrained_model = "/root/Source/model_zoo/pytorch_model/resnet18_v1.pth"
+# C.pretrained_model = "/root/Source/model_zoo/pytorch_model/resnet18_v1.pth"
 
 """Train Config"""
 C.lr = 1e-2
 C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 5e-4
-C.batch_size = 16 #4 * C.num_gpu
+C.batch_size = 8 #4 * C.num_gpu
 C.nepochs = 80
 C.niters_per_epoch = 1000
-C.num_workers = 24
+C.num_workers = 16
 C.train_scale_array = [0.75, 1, 1.25, 1.5, 1.75, 2.0]
 
 """Eval Config"""
