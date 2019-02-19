@@ -53,7 +53,7 @@ def add_path(path):
 
 add_path(osp.join(C.root_dir, 'furnace'))
 
-from furnace.utils.pyt_utils import model_urls
+# from furnace.utils.pyt_utils import model_urls
 
 """Image Config"""
 C.num_classes = 19

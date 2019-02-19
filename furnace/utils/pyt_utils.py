@@ -8,7 +8,8 @@ from collections import OrderedDict, defaultdict
 import torch
 import torch.utils.model_zoo as model_zoo
 
-from furnace.engine.logger import get_logger
+# sys.path.append(os.path.abspath('../../../'))
+from engine.logger import get_logger
 
 logger = get_logger()
 
