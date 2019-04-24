@@ -51,7 +51,7 @@ def add_path(path):
         sys.path.insert(0, path)
 
 
-add_path(osp.join(C.root_dir, 'frunace'))
+add_path(osp.join(C.root_dir, 'furnace'))
 
 from utils.pyt_utils import model_urls
 
