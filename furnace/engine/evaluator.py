@@ -1,10 +1,12 @@
 import os
+import os.path as osp
 import cv2
 import numpy as np
 import time
 from tqdm import tqdm
 
 import torch
+import torch.nn.functional as F
 import torch.multiprocessing as mp
 
 from engine.logger import get_logger
@@ -143,21 +145,24 @@ class Evaluator(object):
         raise NotImplementedError
 
     # evaluate the whole image at once
-    def whole_eval(self, img, output_size, device=None):
-        processed_pred = np.zeros(
-            (output_size[0], output_size[1], self.class_num))
+    def whole_eval(self, img, output_size, input_size=None, device=None):
+        if input_size is not None:
+            img, margin = self.process_image(img, input_size)
+        else:
+            img = self.process_image(img, input_size)
 
-        for s in self.multi_scales:
-            scaled_img = cv2.resize(img, None, fx=s, fy=s,
-                                    interpolation=cv2.INTER_LINEAR)
-            scaled_img = self.process_image(scaled_img, None)
-            pred = self.val_func_process(scaled_img, device)
-            pred = pred.permute(1, 2, 0)
-            processed_pred += cv2.resize(pred.cpu().numpy(),
-                                         (output_size[1], output_size[0]),
-                                         interpolation=cv2.INTER_LINEAR)
+        pred = self.val_func_process(img, device)
+        if input_size is not None:
+            pred = pred[:, margin[0]:(pred.shape[1] - margin[1]),
+                   margin[2]:(pred.shape[2] - margin[3])]
+        pred = pred.permute(1, 2, 0)
+        pred = pred.cpu().numpy()
+        if output_size is not None:
+            pred = cv2.resize(pred,
+                              (output_size[1], output_size[0]),
+                              interpolation=cv2.INTER_LINEAR)
 
-        pred = processed_pred.argmax(2)
+        pred = pred.argmax(2)
 
         return pred
 
