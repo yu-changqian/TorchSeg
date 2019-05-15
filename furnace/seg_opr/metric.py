@@ -40,7 +40,16 @@ def meanIoU(area_intersection, area_union):
 def intersectionAndUnion(imPred, imLab, numClass):
     # Remove classes from unlabeled pixels in gt image.
     # We should not penalize detections in unlabeled portions of the image.
-    imPred = imPred * (imLab >= 0)
+    imPred = np.asarray(imPred).copy()
+    imLab = np.asarray(imLab).copy()
+
+    imPred += 1
+    imLab += 1
+    # Remove classes from unlabeled pixels in gt image.
+    # We should not penalize detections in unlabeled portions of the image.
+    imPred = imPred * (imLab > 0)
+
+    # imPred = imPred * (imLab >= 0)
 
     # Compute area intersection:
     intersection = imPred * (imPred == imLab)
@@ -70,3 +79,11 @@ def pixelAccuracy(imPred, imLab):
     pixel_accuracy = 1.0 * pixel_correct / pixel_labeled
 
     return pixel_accuracy, pixel_correct, pixel_labeled
+
+
+def accuracy(preds, label):
+    valid = (label >= 0)
+    acc_sum = (valid * (preds == label)).sum()
+    valid_sum = valid.sum()
+    acc = float(acc_sum) / (valid_sum + 1e-10)
+    return acc, valid_sum
