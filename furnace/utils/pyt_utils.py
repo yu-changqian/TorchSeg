@@ -7,6 +7,7 @@ from collections import OrderedDict, defaultdict
 
 import torch
 import torch.utils.model_zoo as model_zoo
+import torch.distributed as dist
 
 from engine.logger import get_logger
 
@@ -19,6 +20,23 @@ model_urls = {
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
+
+
+def reduce_tensor(tensor, dst=0, op=dist.ReduceOp.SUM, world_size=1):
+    tensor = tensor.clone()
+    dist.reduce(tensor, dst, op)
+    if dist.get_rank() == dst:
+        tensor.div_(world_size)
+
+    return tensor
+
+
+def all_reduce_tensor(tensor, op=dist.ReduceOp.SUM, world_size=1):
+    tensor = tensor.clone()
+    dist.all_reduce(tensor, op)
+    tensor.div_(world_size)
+
+    return tensor
 
 
 def load_model(model, model_file, is_restore=False):
@@ -113,49 +131,3 @@ def ensure_dir(path):
 def _dbg_interactive(var, value):
     from IPython import embed
     embed()
-
-# def load_model(model, model_file):
-#     if isinstance(model_file, str):
-#         print('Load Model: ' + model_file)
-#         state_dict = torch.load(model_file)
-#     else:
-#         state_dict = model_file
-#
-#     from collections import OrderedDict
-#     new_state_dict = OrderedDict()
-#     for k, v in state_dict.items():
-#         name = k
-#         if k.split('.')[0] == 'module':
-#             name = k[7:]
-#         new_state_dict[name] = v
-#     model.load_state_dict(new_state_dict, strict=False)
-#
-#     return model
-#
-#
-# def parse_devices(input_devices):
-#     if input_devices.endswith('*'):
-#         devices = list(range(torch.cuda.device_count()))
-#         return devices
-#
-#     devices = []
-#     for d in input_devices.split(','):
-#         if '-' in d:
-#             start_device, end_device = d.split('-')[0], d.split('-')[1]
-#             assert start_device != ''
-#             assert end_device != ''
-#             start_device, end_device = int(start_device), int(end_device)
-#             assert start_device < end_device
-#             assert end_device < torch.cuda.device_count()
-#             for sd in range(start_device, end_device + 1):
-#                 devices.append(sd)
-#         else:
-#             device = int(d)
-#             assert device < torch.cuda.device_count()
-#             devices.append(device)
-#
-#     return devices
-
-#
-# def inspect(var):
-#     return CallbackInjector(var, _dbg_interactive)
