@@ -13,11 +13,12 @@ from config import config
 from dataloader import get_train_loader
 from network import PSPNet
 from datasets import ADE
+
 from utils.init_func import init_weight, group_weight
+from utils.pyt_utils import all_reduce_tensor
 from engine.lr_policy import PolyLR
 from engine.logger import get_logger
 from engine.engine import Engine
-from seg_opr.sync_bn import DataParallelModel, Reduce, BatchNorm2d
 
 try:
     from apex.parallel import SyncBatchNorm, DistributedDataParallel
@@ -50,8 +51,7 @@ with Engine(custom_parser=parser) as engine:
     if engine.distributed:
         logger.info('Use the Multi-Process-SyncBatchNorm')
         BatchNorm2d = SyncBatchNorm
-    else:
-        BatchNorm2d = BatchNorm2d
+
     model = PSPNet(config.num_classes, criterion=criterion,
                    pretrained_model=config.pretrained_model,
                    norm_layer=BatchNorm2d)
@@ -61,8 +61,6 @@ with Engine(custom_parser=parser) as engine:
 
     # group weight and config optimizer
     base_lr = config.lr
-    # if engine.distributed:
-    #     base_lr = config.lr * engine.world_size
 
     params_list = []
     params_list = group_weight(params_list, model.backbone,
@@ -79,14 +77,11 @@ with Engine(custom_parser=parser) as engine:
                                 momentum=config.momentum,
                                 weight_decay=config.weight_decay)
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
     if engine.distributed:
-        if torch.cuda.is_available():
-            model.cuda()
-            model = DistributedDataParallel(model)
-    else:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = DataParallelModel(model, engine.devices)
-        model.to(device)
+        model = DistributedDataParallel(model)
 
     engine.register_state(dataloader=train_loader, model=model,
                           optimizer=optimizer)
@@ -117,10 +112,8 @@ with Engine(custom_parser=parser) as engine:
 
             # reduce the whole loss over multi-gpu
             if engine.distributed:
-                dist.all_reduce(loss, dist.ReduceOp.SUM)
-                loss = loss / engine.world_size
-            else:
-                loss = Reduce.apply(*loss) / len(loss)
+                reduce_loss = all_reduce_tensor(loss,
+                                                world_size=engine.world_size)
 
             optimizer.zero_grad()
             loss.backward()
@@ -137,7 +130,7 @@ with Engine(custom_parser=parser) as engine:
             print_str = 'Epoch{}/{}'.format(epoch, config.nepochs) \
                         + ' Iter{}/{}:'.format(idx + 1, config.niters_per_epoch) \
                         + ' lr=%.2e' % lr \
-                        + ' loss=%.2f' % loss.item()
+                        + ' loss=%.2f' % reduce_loss.item()
 
             pbar.set_description(print_str, refresh=False)
 
