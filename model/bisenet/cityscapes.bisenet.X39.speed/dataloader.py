@@ -16,18 +16,8 @@ class TrainPre(object):
 
     def __call__(self, img, gt):
         img, gt = random_mirror(img, gt)
-        short_size = random.randint(int(config.base_size * 0.5),
-                                    int(config.base_size * 2.0))
-        h, w, c = img.shape
-        if h > w:
-            ow = short_size
-            oh = int(1.0 * h * ow / w)
-        else:
-            oh = short_size
-            ow = int(1.0 * w * oh / h)
-
-        img = cv2.resize(img, (ow, oh), interpolation=cv2.INTER_LINEAR)
-        gt = cv2.resize(gt, (ow, oh), interpolation=cv2.INTER_NEAREST)
+        if config.train_scale_array is not None:
+            img, gt, scale = random_scale(img, gt, config.train_scale_array)
 
         img = normalize(img, self.img_mean, self.img_std)
 

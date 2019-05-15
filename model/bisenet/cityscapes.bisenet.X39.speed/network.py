@@ -54,7 +54,7 @@ class BiSeNet(nn.Module):
                                  False, norm_layer)]
         else:
             heads = [None, None,
-                     BiSeNetHead(conv_channel * 2, out_planes, 8,
+                     BiSeNetHead(conv_channel * 2, out_planes, 1,
                                  False, norm_layer)]
 
         self.ffm = FeatureFusion(conv_channel * 2, conv_channel * 2,

@@ -80,8 +80,8 @@ C.lr = 7e-4
 C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 1e-4
-C.batch_size = 16 #4 * C.num_gpu
-C.nepochs = 40
+C.batch_size = 16  # 4 * C.num_gpu
+C.nepochs = 80
 C.niters_per_epoch = 1000
 C.num_workers = 24
 C.train_scale_array = [0.5, 0.75, 1, 1.5, 1.75, 2.0]
@@ -90,7 +90,7 @@ C.train_scale_array = [0.5, 0.75, 1, 1.5, 1.75, 2.0]
 C.eval_iter = 30
 C.eval_stride_rate = 2 / 3
 C.eval_scale_array = [1, ]  # 0.5, 0.75, 1, 1.5, 1.75
-C.eval_flip = False
+C.eval_flip = False  # True if use the ms_flip stragey
 C.eval_base_size = 800
 C.eval_crop_size = 800
 
@@ -102,7 +102,6 @@ C.display_iter = 50
 
 def open_tensorboard():
     pass
-1
 
 if __name__ == '__main__':
     print(config.epoch_num)

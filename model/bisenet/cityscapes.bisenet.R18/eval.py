@@ -82,7 +82,7 @@ if __name__ == "__main__":
     all_dev = parse_devices(args.devices)
 
     network = BiSeNet(config.num_classes, is_training=False,
-                      criterion=None, ohem_criterion=None)
+                      criterion=None)
     data_setting = {'img_root': config.img_root_folder,
                     'gt_root': config.gt_root_folder,
                     'train_source': config.train_source,

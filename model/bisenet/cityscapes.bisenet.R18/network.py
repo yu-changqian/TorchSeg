@@ -17,7 +17,7 @@ def get():
 
 class BiSeNet(nn.Module):
     def __init__(self, out_planes, is_training,
-                 criterion, ohem_criterion, pretrained_model=None,
+                 criterion, pretrained_model=None,
                  norm_layer=nn.BatchNorm2d):
         super(BiSeNet, self).__init__()
         self.context_path = resnet18(pretrained_model, norm_layer=norm_layer,
@@ -56,7 +56,7 @@ class BiSeNet(nn.Module):
                              False, norm_layer)]
 
         self.ffm = FeatureFusion(conv_channel * 2, conv_channel * 2,
-                                 4, norm_layer)
+                                 1, norm_layer)
 
         self.arms = nn.ModuleList(arms)
         self.refines = nn.ModuleList(refines)
@@ -71,7 +71,6 @@ class BiSeNet(nn.Module):
 
         if is_training:
             self.criterion = criterion
-            self.ohem_criterion = ohem_criterion
 
     def forward(self, data, label=None):
         spatial_out = self.spatial_path(data)
@@ -102,9 +101,9 @@ class BiSeNet(nn.Module):
         pred_out.append(concate_fm)
 
         if self.is_training:
-            aux_loss0 = self.ohem_criterion(self.heads[0](pred_out[0]), label)
-            aux_loss1 = self.ohem_criterion(self.heads[1](pred_out[1]), label)
-            main_loss = self.ohem_criterion(self.heads[-1](pred_out[2]), label)
+            aux_loss0 = self.criterion(self.heads[0](pred_out[0]), label)
+            aux_loss1 = self.criterion(self.heads[1](pred_out[1]), label)
+            main_loss = self.criterion(self.heads[-1](pred_out[2]), label)
 
             loss = main_loss + aux_loss0 + aux_loss1
             return loss
@@ -150,7 +149,6 @@ class BiSeNetHead(nn.Module):
             self.conv_3x3 = ConvBnRelu(in_planes, 64, 3, 1, 1,
                                        has_bn=True, norm_layer=norm_layer,
                                        has_relu=True, has_bias=False)
-        # self.dropout = nn.Dropout(0.1)
         if is_aux:
             self.conv_1x1 = nn.Conv2d(256, out_planes, kernel_size=1,
                                       stride=1, padding=0)
@@ -161,7 +159,6 @@ class BiSeNetHead(nn.Module):
 
     def forward(self, x):
         fm = self.conv_3x3(x)
-        # fm = self.dropout(fm)
         output = self.conv_1x1(fm)
         if self.scale > 1:
             output = F.interpolate(output, scale_factor=self.scale,

@@ -14,11 +14,12 @@ from config import config
 from dataloader import get_train_loader
 from network import BiSeNet
 from datasets import Cityscapes
+
 from utils.init_func import init_weight, group_weight
+from utils.pyt_utils import all_reduce_tensor
 from engine.lr_policy import PolyLR
 from engine.engine import Engine
 from seg_opr.loss_opr import SigmoidFocalLoss, ProbOhemCrossEntropy2d
-from seg_opr.sync_bn import DataParallelModel, Reduce, BatchNorm2d
 
 try:
     from apex.parallel import DistributedDataParallel, SyncBatchNorm
@@ -44,20 +45,17 @@ with Engine(custom_parser=parser) as engine:
     train_loader, train_sampler = get_train_loader(engine, Cityscapes)
 
     # config network and criterion
-    criterion = nn.CrossEntropyLoss(reduction='mean',
-                                    ignore_index=255)
-    ohem_criterion = ProbOhemCrossEntropy2d(ignore_label=255, thresh=0.7,
-                                            min_kept=int(
-                                                config.batch_size // len(
-                                                    engine.devices) * config.image_height * config.image_width // 16),
-                                            use_weight=False)
+    min_kept = int(config.batch_size // len(
+        engine.devices) * config.image_height * config.image_width // 16)
+    criterion = ProbOhemCrossEntropy2d(ignore_label=255, thresh=0.7,
+                                       min_kept=min_kept,
+                                       use_weight=False)
 
     if engine.distributed:
         BatchNorm2d = SyncBatchNorm
 
     model = BiSeNet(config.num_classes, is_training=True,
                     criterion=criterion,
-                    ohem_criterion=ohem_criterion,
                     pretrained_model=config.pretrained_model,
                     norm_layer=BatchNorm2d)
     init_weight(model.business_layer, nn.init.kaiming_normal_,
@@ -73,13 +71,13 @@ with Engine(custom_parser=parser) as engine:
     params_list = group_weight(params_list, model.context_path,
                                BatchNorm2d, base_lr)
     params_list = group_weight(params_list, model.spatial_path,
-                               BatchNorm2d, base_lr)
+                               BatchNorm2d, base_lr * 10)
     params_list = group_weight(params_list, model.global_context,
-                               BatchNorm2d, base_lr)
+                               BatchNorm2d, base_lr * 10)
     params_list = group_weight(params_list, model.arms,
-                               BatchNorm2d, base_lr)
+                               BatchNorm2d, base_lr * 10)
     params_list = group_weight(params_list, model.refines,
-                               BatchNorm2d, base_lr)
+                               BatchNorm2d, base_lr * 10)
     params_list = group_weight(params_list, model.heads,
                                BatchNorm2d, base_lr * 10)
     params_list = group_weight(params_list, model.ffm,
@@ -94,14 +92,11 @@ with Engine(custom_parser=parser) as engine:
     total_iteration = config.nepochs * config.niters_per_epoch
     lr_policy = PolyLR(base_lr, config.lr_power, total_iteration)
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
     if engine.distributed:
-        if torch.cuda.is_available():
-            model.cuda()
-            model = DistributedDataParallel(model)
-    else:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = DataParallelModel(model, device_ids=engine.devices)
-        model.to(device)
+        model = DistributedDataParallel(model)
 
     engine.register_state(dataloader=train_loader, model=model,
                           optimizer=optimizer)
@@ -132,17 +127,15 @@ with Engine(custom_parser=parser) as engine:
 
             # reduce the whole loss over multi-gpu
             if engine.distributed:
-                dist.all_reduce(loss, dist.ReduceOp.SUM)
-                loss = loss / engine.world_size
-            else:
-                loss = Reduce.apply(*loss) / len(loss)
+                reduce_loss = all_reduce_tensor(loss,
+                                                world_size=engine.world_size)
 
             current_idx = epoch * config.niters_per_epoch + idx
             lr = lr_policy.get_lr(current_idx)
 
-            for i in range(10):
+            for i in range(2):
                 optimizer.param_groups[0]['lr'] = lr
-            for i in range(10, len(optimizer.param_groups)):
+            for i in range(2, len(optimizer.param_groups)):
                 optimizer.param_groups[i]['lr'] = lr * 10
 
             loss.backward()
@@ -150,7 +143,7 @@ with Engine(custom_parser=parser) as engine:
             print_str = 'Epoch{}/{}'.format(epoch, config.nepochs) \
                         + ' Iter{}/{}:'.format(idx + 1, config.niters_per_epoch) \
                         + ' lr=%.2e' % lr \
-                        + ' loss=%.2f' % loss.item()
+                        + ' loss=%.2f' % reduce_loss.item()
 
             pbar.set_description(print_str, refresh=False)
 
