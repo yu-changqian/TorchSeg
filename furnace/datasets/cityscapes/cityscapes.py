@@ -24,6 +24,9 @@ class Cityscapes(BaseDataset):
 
     @classmethod
     def get_class_names(*args):
+        # class counting(gtFine)
+        # 2953 2811 2934  970 1296 2949 1658 2808 2891 1654 2686 2343 1023 2832
+        # 359  274  142  513 1646
         return ['road', 'sidewalk', 'building', 'wall', 'fence', 'pole',
                 'traffic light', 'traffic sign',
                 'vegetation', 'terrain', 'sky', 'person', 'rider', 'car',
@@ -39,4 +42,7 @@ class Cityscapes(BaseDataset):
         new_name = (name.split('.')[0]).split('_')[:-1]
         new_name = '_'.join(new_name) + '.png'
 
+        print('Trans', name, 'to', new_name, '    ',
+              np.unique(np.array(pred, np.uint8)), ' ---------> ',
+              np.unique(np.array(label, np.uint8)))
         return label, new_name
