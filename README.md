@@ -4,7 +4,7 @@ This project aims at providing a fast, modular reference implementation for sema
 ![demo image](demo/cityscapes_demo_img.png)
 
 ## Highlights
-- **Modular Design:** easily construct a customized semantic segmentation models by combining different components.
+- **Modular Design:** easily construct customized semantic segmentation models by combining different components.
 - **Distributed Training:** **>60%** faster than the multi-thread parallel method([nn.DataParallel](https://pytorch.org/docs/stable/nn.html#dataparallel)), we use the multi-processing parallel method.
 - **Multi-GPU training and inference:** support different manners of inference.
 - Provides pre-trained models and implement different semantic segmentation models.
