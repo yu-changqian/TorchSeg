@@ -21,12 +21,11 @@ This project aims at providing a fast, modular reference implementation for sema
   - `pip3 install tqdm`
   
 ## Updates
-05/14/2019
-- Release the pre-trained models
-- Release all trained models
-- Add support for PSANet
+v0.1.1 (05/14/2019)
+- Release the pre-trained models and all trained models
+- Add PSANet for ADE20K
 - Add support for CamVid, PASCAL-Context datasets
-- Start only supporting the distributed training method
+- Start only supporting the distributed training manner
 
 ## Model Zoo
 ### Pretrained Model
