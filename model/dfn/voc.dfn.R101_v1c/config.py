@@ -36,11 +36,12 @@ C.val_log_file = C.log_dir + '/val_' + exp_time + '.log'
 C.link_val_log_file = C.log_dir + '/val_last.log'
 
 """Data Dir and Weight Dir"""
-C.img_root_folder = "/unsullied/sharefs/yuchangqian/Storage/Datasets/VOC2012_AUG/"
-C.gt_root_folder = "/unsullied/sharefs/yuchangqian/Storage/Datasets/VOC2012_AUG/"
-C.train_source = "/unsullied/sharefs/yuchangqian/Storage/Datasets/VOC2012_AUG/config/train.txt"
-C.eval_source = "/unsullied/sharefs/yuchangqian/Storage/Datasets/VOC2012_AUG/config/val.txt"
-C.test_source = "/unsullied/sharefs/yuchangqian/Storage/Datasets/VOC2012_AUG/config/voc12_test.txt"
+C.dataset_path = "/root/Source/Datasets/Segmentation/VOC2012_AUG"
+C.img_root_folder = C.dataset_path
+C.gt_root_folder = C.dataset_path
+C.train_source = osp.join(C.dataset_path, "config/train.txt")
+C.eval_source = osp.join(C.dataset_path, "config/val.txt")
+C.test_source = osp.join(C.dataset_path, "config/voc12_test.txt")
 C.is_test = False
 
 """Path Config"""
@@ -52,8 +53,6 @@ def add_path(path):
 
 
 add_path(osp.join(C.root_dir, 'furnace'))
-
-from utils.pyt_utils import model_urls
 
 """Image Config"""
 C.num_classes = 21
@@ -72,11 +71,11 @@ C.fix_bn = False
 C.sync_bn = True
 C.bn_eps = 1e-5
 C.bn_momentum = 0.1
-C.pretrained_model = "/unsullied/sharefs/yuchangqian/Storage/model_zoo/pytorch_model/resnet101_v1c.pth"
+C.pretrained_model = "/root/Source/model_zoo/pytorch_model/resnet101_v1c.pth"
 C.aux_loss_alpha = 0.1
 
 """Train Config"""
-C.lr = 1e-3
+C.lr = 8e-4
 C.lr_power = 0.9
 C.momentum = 0.9
 C.weight_decay = 1e-5
@@ -89,7 +88,7 @@ C.train_scale_array = [0.5, 0.75, 1, 1.5, 1.75, 2.0]
 """Eval Config"""
 C.eval_iter = 30
 C.eval_stride_rate = 2 / 3
-C.eval_scale_array = [1, ]
+C.eval_scale_array = [1, ]  # multi_scale: 0.5, 0.75, 1, 1.5, 1.75
 C.eval_flip = False
 C.eval_base_size = 512
 C.eval_crop_size = 512
