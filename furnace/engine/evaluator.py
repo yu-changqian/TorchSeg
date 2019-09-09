@@ -109,6 +109,7 @@ class Evaluator(object):
             p = self.context.Process(target=self.worker,
                                      args=(shred_list, device))
             procs.append(p)
+            # self.worker(shred_list, device)
 
         for p in procs:
             p.start()
@@ -239,7 +240,7 @@ class Evaluator(object):
     def val_func_process(self, input_data, device=None):
         input_data = np.ascontiguousarray(input_data[None, :, :, :],
                                           dtype=np.float32)
-        input_data = torch.FloatTensor(input_data).cuda(device)
+        input_data = torch.tensor(input_data, device=device)
 
         with torch.cuda.device(input_data.get_device()):
             self.val_func.eval()
