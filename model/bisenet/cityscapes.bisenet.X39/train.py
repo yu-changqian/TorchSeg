@@ -135,7 +135,7 @@ with Engine(custom_parser=parser) as engine:
             lr = lr_policy.get_lr(current_idx)
 
             for i in range(10):
-                optimizer.param_groups[0]['lr'] = lr
+                optimizer.param_groups[i]['lr'] = lr
             for i in range(10, len(optimizer.param_groups)):
                 optimizer.param_groups[i]['lr'] = lr * 10
 
