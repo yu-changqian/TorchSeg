@@ -141,11 +141,6 @@ class ObjectContext(nn.Module):
             SymmetricConv(self.out_planes, 11, norm_layer)
         )
 
-        # self.similarity_proj = ConvBnRelu(1, 1, 1, 1, 0,
-        #                                   has_bn=True, has_relu=False,
-        #                                   has_bias=False,
-        #                                   norm_layer=norm_layer)
-
         self.intra_post_conv = ConvBnRelu(self.out_planes,
                                           self.out_planes,
                                           1, 1, 0, has_bn=True, has_relu=True,
@@ -163,17 +158,10 @@ class ObjectContext(nn.Module):
 
         value = softmax_x.view(b, self.out_planes, -1)
         similarity_map = torch.bmm(value.permute(0, 2, 1), value)
-        # similarity_map = self.similarity_proj(similarity_map)
         similarity_map = torch.sigmoid(similarity_map)
-
-        # intra_similarity_map = self.intra_similarity_branch(value)
-        # intra_similarity_map = intra_similarity_map.view(b, h * w, -1)
-        # intra_similarity_map = intra_similarity_map.permute(0, 2, 1)
-        # intra_similarity_map = torch.sigmoid(intra_similarity_map)
 
         inter_similarity_map = 1 - similarity_map
 
-        # value = value.view(b, self.inner_channel, -1)
         value = value.permute(0, 2, 1)
 
         intra_context = torch.bmm(similarity_map, value)
