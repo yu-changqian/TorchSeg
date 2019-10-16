@@ -23,19 +23,20 @@ def compute_speed(model, input_size, device, iteration):
 
     input = torch.randn(*input_size, device=device)
 
-    for _ in range(10):
+    torch.cuda.synchronize()
+    for _ in range(50):
         model(input)
         torch.cuda.synchronize()
 
     logger.info('=========Speed Testing=========')
-    torch.cuda.synchronize()
     time_spent = []
     for _ in range(iteration):
-        t_start = time.time()
+        torch.cuda.synchronize()
+        t_start = time.perf_counter()
         with torch.no_grad():
             model(input)
         torch.cuda.synchronize()
-        time_spent.append(time.time() - t_start)
+        time_spent.append(time.perf_counter() - t_start)
     torch.cuda.synchronize()
     elapsed_time = np.sum(time_spent)
     with torchprof.Profile(model, use_cuda=True) as prof:

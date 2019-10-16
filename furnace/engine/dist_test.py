@@ -106,13 +106,12 @@ class Evaluator(object):
             device = self.devices[d]
             logger.info(
                 'GPU %s handle %d data.' % (device, len(shred_list)))
-            # p = self.context.Process(target=self.worker,
-            #                          args=(shred_list, device))
-            # procs.append(p)
-            self.worker(shred_list, device)
+            p = self.context.Process(target=self.worker,
+                                     args=(shred_list, device))
+            procs.append(p)
 
-        # for p in procs:
-        #     p.start()
+        for p in procs:
+            p.start()
 
         all_results = []
         for _ in tqdm(range(self.ndata)):
@@ -121,8 +120,8 @@ class Evaluator(object):
             if self.verbose:
                 self.compute_metric(all_results)
 
-        # for p in procs:
-        #     p.join()
+        for p in procs:
+            p.join()
 
         result_line = self.compute_metric(all_results)
         logger.info(
@@ -240,7 +239,10 @@ class Evaluator(object):
     def val_func_process(self, input_data, device=None):
         input_data = np.ascontiguousarray(input_data[None, :, :, :],
                                           dtype=np.float32)
-        input_data = torch.tensor(input_data, device=device)
+        # input_data = torch.FloatTensor(input_data).to(device)
+        # input_data = torch.tensor(input_data, device=device)
+        input_data = torch.from_numpy(input_data).to(device)
+        # print(torch.cuda.current_device(), device)
 
         with torch.cuda.device(input_data.get_device()):
             self.val_func.eval()

@@ -11,6 +11,16 @@ import torch
 import torch.nn as nn
 
 
+def one_hot(index_tensor, cls_num):
+    b, h, w = index_tensor.size()
+    index_tensor = index_tensor.view(b, 1, h, w)
+    one_hot_tensor = torch.cuda.FloatTensor(b, cls_num, h, w).zero_()
+    one_hot_tensor = one_hot_tensor.cuda(index_tensor.get_device())
+    target = one_hot_tensor.scatter_(1, index_tensor.long(), 1)
+
+    return target
+
+
 class ConvBnRelu(nn.Module):
     def __init__(self, in_planes, out_planes, ksize, stride, pad, dilation=1,
                  groups=1, has_bn=True, norm_layer=nn.BatchNorm2d, bn_eps=1e-5,
@@ -19,6 +29,33 @@ class ConvBnRelu(nn.Module):
         self.conv = nn.Conv2d(in_planes, out_planes, kernel_size=ksize,
                               stride=stride, padding=pad,
                               dilation=dilation, groups=groups, bias=has_bias)
+        self.has_bn = has_bn
+        if self.has_bn:
+            self.bn = norm_layer(out_planes, eps=bn_eps)
+        self.has_relu = has_relu
+        if self.has_relu:
+            self.relu = nn.ReLU(inplace=inplace)
+
+    def forward(self, x):
+        x = self.conv(x)
+        if self.has_bn:
+            x = self.bn(x)
+        if self.has_relu:
+            x = self.relu(x)
+
+        return x
+
+
+class DeConvBnRelu(nn.Module):
+    def __init__(self, in_planes, out_planes, ksize, stride, pad, output_pad,
+                 dilation=1, groups=1, has_bn=True, norm_layer=nn.BatchNorm2d,
+                 bn_eps=1e-5, has_relu=True, inplace=True, has_bias=False):
+        super(DeConvBnRelu, self).__init__()
+        self.conv = nn.ConvTranspose2d(in_planes, out_planes, kernel_size=ksize,
+                                       stride=stride, padding=pad,
+                                       output_padding=output_pad,
+                                       dilation=dilation, groups=groups,
+                                       bias=has_bias)
         self.has_bn = has_bn
         if self.has_bn:
             self.bn = norm_layer(out_planes, eps=bn_eps)
