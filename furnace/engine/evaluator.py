@@ -97,32 +97,47 @@ class Evaluator(object):
         start_eval_time = time.perf_counter()
         nr_devices = len(self.devices)
         stride = int(np.ceil(self.ndata / nr_devices))
+        all_results = []
 
-        # start multi-process on multi-gpu
-        procs = []
+        # construct dataset shred
+        shred_list = []
         for d in range(nr_devices):
             e_record = min((d + 1) * stride, self.ndata)
-            shred_list = list(range(d * stride, e_record))
-            device = self.devices[d]
-            logger.info(
-                'GPU %s handle %d data.' % (device, len(shred_list)))
-            # p = self.context.Process(target=self.worker,
-            #                          args=(shred_list, device))
-            # procs.append(p)
-            self.worker(shred_list, device)
+            shred = list(range(d * stride, e_record))
+            shred_list.append(shred)
 
-        # for p in procs:
-        #     p.start()
+        if nr_devices > 1:
+            # start multi-process on multi-gpu
+            procs = []
+            for d in range(nr_devices):
+                device = self.devices[d]
+                logger.info(
+                    'GPU %s handle %d data.' % (device, len(shred_list)))
+                p = self.context.Process(target=self.worker,
+                                         args=(shred_list[d], device))
+                procs.append(p)
 
-        all_results = []
-        for _ in tqdm(range(self.ndata)):
-            t = self.results_queue.get()
-            all_results.append(t)
-            if self.verbose:
-                self.compute_metric(all_results)
+            for p in procs:
+                p.start()
 
-        # for p in procs:
-        #     p.join()
+            for _ in tqdm(range(self.ndata)):
+                t = self.results_queue.get()
+                all_results.append(t)
+                del t
+                if self.verbose:
+                    self.compute_metric(all_results)
+
+            for p in procs:
+                p.join()
+        else:
+            self.worker(shred_list[0], self.devices[0])
+
+            for _ in tqdm(range(self.ndata)):
+                t = self.results_queue.get()
+                all_results.append(t)
+                del t
+                if self.verbose:
+                    self.compute_metric(all_results)
 
         result_line = self.compute_metric(all_results)
         logger.info(
