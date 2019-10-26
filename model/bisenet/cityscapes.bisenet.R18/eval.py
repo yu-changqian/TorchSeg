@@ -27,7 +27,7 @@ class SegEvaluator(Evaluator):
         name = data['fn']
 
         pred = self.sliding_eval(img, config.eval_crop_size,
-                                 config.eval_stride_rate, device)
+                                 config.eval_stride_rate, device=device)
         hist_tmp, labeled_tmp, correct_tmp = hist_info(config.num_classes,
                                                        pred,
                                                        label)
