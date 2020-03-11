@@ -154,10 +154,10 @@ Please consider citing this project in your publications if it helps your resear
 Please consider citing the [DFN](https://arxiv.org/abs/1804.09337) in your publications if it helps your research. 
 
 ```
-@article{yu2018dfn,
+@inproceedings{yu2018dfn,
   title={Learning a Discriminative Feature Network for Semantic Segmentation},
   author={Yu, Changqian and Wang, Jingbo and Peng, Chao and Gao, Changxin and Yu, Gang and Sang, Nong},
-  journal={arXiv preprint arXiv:1804.09337},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2018}
 }
 ```
