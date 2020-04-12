@@ -50,7 +50,7 @@ class SegEvaluator(Evaluator):
             logger.info('Save the image ' + fn)
 
         if self.show_image:
-            colors = self.dataset.get_class_colors
+            colors = self.dataset.get_class_colors()
             image = img
             clean = np.zeros(label.shape)
             comp_img = show_img(colors, config.background, image, clean,
